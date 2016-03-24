@@ -24,7 +24,7 @@ public class Lofar extends JComponent {
     //Graphics g;
     int gn = 0;
     despliegue d = new despliegue();
-    //String hw="ESPERANDO... un hola";
+    String hw="ESPERANDO... un hola";
 
     public static void main(String[] args) {
         JFrame window = new JFrame("LOFAR by SIVISO");
@@ -34,13 +34,11 @@ public class Lofar extends JComponent {
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         window.setLocationRelativeTo(null);
         window.setVisible(true);
-        //despliegue d = new despliegue();
-        //d.run();
-        comInterfaz c = new comInterfaz();
-        //despliegue d = new despliegue();
-        //c.run(window, d);
+        comInterfaz c = new comInterfaz() {};
+        //c.run();
         c.run(window);
     }
+    //private String hw;
 
     @Override
     public Dimension getPreferredSize() {
@@ -51,6 +49,7 @@ public class Lofar extends JComponent {
     protected void paintComponent(Graphics g) {
         gn++;
         System.out.println("paint component ciclo numero: " + gn);
+        System.out.println(hw);
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, getSize().width, getSize().height);
 
@@ -61,11 +60,11 @@ public class Lofar extends JComponent {
 
     }
     
-    /*public void sethw(String hw){
+    public void sethw(String hw){
         this.hw = hw;
     }
     
     public String gethw(){
         return hw;
-    }*/
+    }
 }

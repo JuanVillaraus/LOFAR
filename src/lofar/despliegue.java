@@ -6,13 +6,13 @@
 package lofar;
 
 import java.awt.*;
-import javax.swing.JComponent;
+//import javax.swing.JComponent;
 
 /**
  *
  * @author juan
  */
-class despliegue extends JComponent {
+class despliegue {
 
     int xi, yi, c;
     //int inc = 255 / 11;
@@ -43,10 +43,10 @@ class despliegue extends JComponent {
         System.out.println(info);
         char[] charArray = info.toCharArray();
 
-        System.out.println(" ");
+        /*System.out.println(" ");
         for (char temp : charArray) {
             System.out.print(temp);
-        }
+        }*/
 
         for (char temp : charArray) {
             if (!(temp == ',') && !(temp == ';')) {
@@ -90,9 +90,8 @@ class despliegue extends JComponent {
             g.drawLine(xi, 95 - (topLine[i] * 90 / 255), xi + limX + 1, 95 - (topLine[i + 1] * 90 / 255));
             xi += limX + 1;
         }
-        System.out.println(gethw());
+        System.out.println("esto esta en el hw: " +gethw());
     }
-
     public String gethw() {
         return hw;
     }

@@ -5,10 +5,6 @@
  */
 package lofar;
 
-/**
- *
- * @author juan
- */
 import java.io.*;
 
 /**
