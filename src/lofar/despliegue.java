@@ -14,7 +14,7 @@ import java.awt.*;
  */
 class despliegue {
 
-    int xi, yi, c;
+    int xi, yi, c, t;
     //int inc = 255 / 11;
     //int ml[];
     String ch = "";
@@ -28,7 +28,8 @@ class despliegue {
         String DIR = "resource/dataEj1.txt";   //variable estatica que guarda el nombre del archivo donde se guardara la informacion recivida para desplegarse
         int n = 0;  //variable de control int que guarda el numero del color a desplegar
         yi = 100;     //variable de control grafico en Y que guarda la acumulacion del incremento para la graficacion
-        xi = 0;     //variable de control grafico en Y que guarda la acumulacion del incremento para la graficacion
+        xi = 50;     //variable de control grafico en Y que guarda la acumulacion del incremento para la graficacion
+        t = 0;
         String box = ""; //variable que guarda de char en char hasta llegar al tope asignado para proceder a convertirlo a int
         int[] topLine = new int[101];
         boolean bTopLine = true;
@@ -47,6 +48,9 @@ class despliegue {
         for (char temp : charArray) {
             System.out.print(temp);
         }*/
+        g.setColor(Color.GREEN);
+        g.drawLine(30, 100, 30, 500);
+        g.drawLine(30, 100, limX*120, limY*120);
 
         for (char temp : charArray) {
             if (!(temp == ',') && !(temp == ';')) {
@@ -59,8 +63,8 @@ class despliegue {
                 }
                 if (n > 0 && n < 255) {
                     g.setColor(new Color(0, 255 - n, 0));
-                    g.fillRect(xi, yi, limX + 1, limY);
-                    xi += limX + 1;
+                    g.fillRect(xi, yi, limX, limY);
+                    xi += limX;
                     box = "";
                 } else {
                     System.out.println("Error #??: el valor a desplegar esta fuera de rango");
@@ -73,22 +77,28 @@ class despliegue {
                 }
                 if (n > 0 && n < 255) {
                     g.setColor(new Color(0, 255 - n, 0));
-                    g.fillRect(xi, yi, limX + 1, limY);
+                    g.fillRect(xi, yi, limX, limY);
                     box = "";
                 }
-                xi = 0;
+                xi = 50;
                 yi += limY;
+                t++;
+                if(t==5){
+                    g.setColor(Color.GREEN);
+                    g.drawLine(20, yi, 30, yi);
+                    t=0;
+                }
             } else {
                 System.out.println("Error #??: el valor a desplegar no se reconoce");
             }
         }
 
-        xi = limX / 2;
+        xi = 50;//limX / 2;
         yi = 95;
         g.setColor(new Color(0, 150, 0));
         for (int i = 0; i < 100; i++) {
-            g.drawLine(xi, 95 - (topLine[i] * 90 / 255), xi + limX + 1, 95 - (topLine[i + 1] * 90 / 255));
-            xi += limX + 1;
+            g.drawLine(xi, 95 - (topLine[i] * 90 / 255), xi + limX, 95 - (topLine[i+1] * 90 / 255));
+            xi += limX;
         }
         System.out.println("esto esta en el hw: " +gethw());
     }
