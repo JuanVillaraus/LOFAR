@@ -7,6 +7,8 @@ package lofar;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
+import java.util.Properties;
 
 /**
  *
@@ -16,37 +18,77 @@ public class Lofar extends JComponent {
 
     int sizeCanalX = 0;
     int sizeCanalY;
-
     int xi, yi, c;
-    //int inc = 255 / 11;
     String infor;
     int ml[];
-    //Graphics g;
     int gn = 0;
-    //despliegue d = new despliegue();
     String info;
 
     public static void main(String[] args) {
         JFrame window = new JFrame();
         //window.setUndecorated(true);
         window.setType(javax.swing.JFrame.Type.UTILITY);
-        //window.setType(Window.Type.UTILITY);
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         Lofar lf = new Lofar();
         window.setLocationRelativeTo(null);
         window.setVisible(true);
         window.add(lf);
         window.pack();
-        comInterfaz c = new comInterfaz() {
-        };
-        //c.run();
-        //c.run(window);
+        comInterfaz c = new comInterfaz();
+        window.setAlwaysOnTop(true);
+        window.setFocusable(true);
+        Properties prop = new Properties();
+        InputStream input = null;
+        int posicionX = 0;
+        int posicionY = 0;
+        try {
+            input = new FileInputStream("config.properties");
+            //load a properties file
+            prop.load(input);
+            //get the propperty value and print it out
+            posicionX = Integer.parseInt(prop.getProperty("posicionX"));
+            posicionY = Integer.parseInt(prop.getProperty("posicionY"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        window.setLocation(posicionX, posicionY);
+        c.run(window);
     }
     //private String hw;
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(680, 550);
+        int dimensionX = 100;
+        int dimensionY = 100;
+        Properties prop = new Properties();
+        InputStream input = null;
+        try {
+            input = new FileInputStream("config.properties");
+            //load a properties file
+            prop.load(input);
+            //get the propperty value and print it out
+            dimensionX = Integer.parseInt(prop.getProperty("dimensionX"));
+            dimensionY = Integer.parseInt(prop.getProperty("dimensionY"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return new Dimension(dimensionX, dimensionY);
     }
 
     @Override
@@ -68,7 +110,7 @@ public class Lofar extends JComponent {
         System.out.println("estoy en el despliegue");
         archivo a = new archivo();
 
-        String DIR = "resource/dataEj1.txt";   //variable estatica que guarda el nombre del archivo donde se guardara la informacion recivida para desplegarse
+        String DIR = "resource/lofarData.txt";   //variable estatica que guarda el nombre del archivo donde se guardara la informacion recivida para desplegarse
         int n;  //variable de control int que guarda el numero del color a desplegar
         yi = 100;     //variable de control grafico en Y que guarda la acumulacion del incremento para la graficacion
         xi = 50;     //variable de control grafico en Y que guarda la acumulacion del incremento para la graficacion

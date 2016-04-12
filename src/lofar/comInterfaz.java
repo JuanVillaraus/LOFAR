@@ -99,7 +99,7 @@ class comInterfaz extends Lofar implements Runnable {
                         }
                         i++;
                     }
-                    //a.escribirTxt("resource/dataEj1.txt", texto);
+                    a.escribirTxt("resource/lofarData.txt", texto);
                     //System.out.println("intento mandar un hola...");
                     //super.hw="HOLA MUNDO + "+texto;
                     window.repaint();
