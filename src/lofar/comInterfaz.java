@@ -10,6 +10,8 @@ package lofar;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 //import java.net.SocketException;
 //import java.net.UnknownHostException;
 import javax.swing.*;
@@ -72,8 +74,6 @@ class comInterfaz extends Lofar implements Runnable {
                 //System.out.println(cadenaMensaje);                          //Imprimimos el paquete recibido
                 if ("LF_OFF".equals(cadenaMensaje)) {
                     window.setVisible(false);
-                    //super.hw="HOLA MUNDO lo he logrado ";
-                    //super.d.sethw("HOLA MUNDO!!! LO LOGRE");
                     System.out.println("LOFAR esta deshabilitado");
                     if (cspps.getHabilitado()) {
                         cspps.setHabilitado(false);
@@ -87,21 +87,32 @@ class comInterfaz extends Lofar implements Runnable {
                 } else if (!("START OK!".equals(cadenaMensaje))) {
                     i = 0;
                     char[] charArray = cadenaMensaje.toCharArray();
-                    texto = "";
-                    for (char temp : charArray) {
-                        if (i < 101 && ((int) temp > 0) && ((int) temp < 255)) {
-                            texto += Integer.toString((int) temp);
-                            if (i == 100) {
-                                texto += ";";
+                    
+                    Calendar cal = Calendar.getInstance();
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                    texto = sdf.format(cal.getTime()) + ",";
+                    //texto = "";
+                    //if (!(charArray[1] == 's')) {
+                        /*for (char temp : charArray) {
+                            if (i < 11 && ((int) temp > 0) && ((int) temp < 255)) {
+                                texto += Integer.toString((int) temp);
+                                if (i == 10) {
+                                    texto += ";";
+                                } else {
+                                    texto += ",";
+                                }
                             } else {
-                                texto += ",";
+
                             }
+                            System.out.println("Error #??: el valor a guardar esta fuera de rango");
+                            i++;
+                        }*/
+                    //} else {
+                        for (char temp : charArray) {
+                            texto += temp;
                         }
-                        i++;
-                    }
-                    a.escribirTxt("resource/lofarData.txt", texto);
-                    //System.out.println("intento mandar un hola...");
-                    //super.hw="HOLA MUNDO + "+texto;
+                    //}
+                    a.escribirTxt("resource/lofarDataRcv.txt", texto);
                     window.repaint();
                 } else if (!("EXIT!".equals(cadenaMensaje))) {
                     System.exit(0);
