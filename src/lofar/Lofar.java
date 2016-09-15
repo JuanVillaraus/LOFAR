@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  */
 public class Lofar extends JComponent {
 
-    int inicioCascadaX = 50;
+    int inicioCascadaX = 75;
     int inicioCascadaY = 130;
     int sizeCanalX = 0;
     int sizeCanalY;
@@ -119,7 +119,7 @@ public class Lofar extends JComponent {
         xi = inicioCascadaX;     //variable de control grafico en Y que guarda la acumulacion del incremento para la graficacion
         yi = inicioCascadaY;     //variable de control grafico en Y que guarda la acumulacion del incremento para la graficacion
         String box = ""; //variable que guarda de char en char hasta llegar al tope asignado para proceder a convertirlo a int
-        int[] topLine = new int[101];
+        int[] topLine = new int[62];
         String topWord = "";
         boolean bTopLine = true;
         boolean bTopWord = true;
@@ -138,14 +138,20 @@ public class Lofar extends JComponent {
         g.drawLine(inicioCascadaX - 5, 1, inicioCascadaX - 5, inicioCascadaY - 30);
         g.drawLine(inicioCascadaX - 5, inicioCascadaY - 30, getSize().width, inicioCascadaY - 30);
         g.drawLine(inicioCascadaX - 5, inicioCascadaY, inicioCascadaX - 5, getSize().height - 20);
+        g.drawLine(inicioCascadaX - 10, 5, inicioCascadaX - 5, 5);
+        g.drawString("-65", inicioCascadaX - 35, 11);
+        g.drawLine(inicioCascadaX - 10, (((inicioCascadaY - 35)+5)/2), inicioCascadaX - 5, (((inicioCascadaY - 35)+5)/2));
+        g.drawString("-95", inicioCascadaX - 35, (((inicioCascadaY - 35)+5)/2)+5);
+        g.drawLine(inicioCascadaX - 10, inicioCascadaY - 35, inicioCascadaX - 5, inicioCascadaY - 35);
+        g.drawString("-125", inicioCascadaX - 40, inicioCascadaY - 30);
         //g.drawLine(inicioCascadaX - 5, getSize().height - 20, getSize().width, getSize().height - 20);
         //g.drawString("t/seg", 5, 100);
         for (int i = 0; i < 7; i++) {
-            g.drawLine(inicioCascadaX + (((getSize().width - inicioCascadaX) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((getSize().width - inicioCascadaX) / 6) * i), inicioCascadaY - 25);
+            g.drawLine(inicioCascadaX + (((limX*62) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((limX*62) / 6) * i), inicioCascadaY - 25);
             if (i != 6) {
-                g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (((getSize().width - inicioCascadaX) / 6) * i), inicioCascadaY - 10);
+                g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (((limX*62) / 6) * i), inicioCascadaY - 10);
             } else {
-                g.drawString((i * 100) + "Hz", getSize().width - 40, inicioCascadaY - 10);
+                g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (limX*62) - 20, inicioCascadaY - 10);
             }
         }
         
@@ -208,7 +214,7 @@ public class Lofar extends JComponent {
                     g.drawString(topWord + "", 5, yi + 3);
                 }
                 bTopWord = true;
-                info=topWord;
+                info=topWord+",";
                 topWord = "";
             } else {
                 System.out.println("Error #??: el valor a desplegar no se reconoce");
@@ -222,16 +228,18 @@ public class Lofar extends JComponent {
             g.drawLine(xi, 95 - (((topLine[i]) - 55) * 90 / 60), xi + limX, 95 - (((topLine[i + 1]) - 55) * 90 / 60));
             xi += limX;
             topLine[i] -= 180;
-            if (i < 61) {
+            if (i < 60) {
                 info += topLine[i] + ",";
             } else {
                 info += topLine[i] + ";";
+                System.out.println("guardare en lofarData.txt: " + info);
                 try {
                     a.escribirTxt("resource/lofarData.txt", info);
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
                     System.exit(1);
                 }
+                info="";
             }
         }
     }

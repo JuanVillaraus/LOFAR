@@ -34,7 +34,7 @@ class comInterfaz extends Lofar implements Runnable {
     byte[] RecogerServidor_bytes = new byte[256];
     //String str;
     //despliegue d = new despliegue();
-    int[] n = new int[101];
+    //int[] n = new int[62];
     String texto = "";
     String hw = "...esperando un hola";
 
@@ -60,9 +60,9 @@ class comInterfaz extends Lofar implements Runnable {
             cspps.start();
             //comSSPreceive csppr = new comSSPreceive();
             //csppr.start();
-            for (int i = 0; i < 101; i++) {
+            /*for (int i = 0; i < 62; i++) {
                 n[i] = 0;
-            }
+            }*/
             archivo a = new archivo();
 
             int i;
