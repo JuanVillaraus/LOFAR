@@ -20,7 +20,7 @@ import javax.swing.*;
  *
  * @author juan
  */
-class comInterfaz extends Lofar implements Runnable {
+class comInterfaz extends Thread {
 
     //Definimos el sockets, número de bytes del buffer, y mensaje.
     DatagramSocket socket;
@@ -48,7 +48,9 @@ class comInterfaz extends Lofar implements Runnable {
     public void run(JFrame window) {
         try {
             mensaje_bytes = mensaje.getBytes();
-            address = InetAddress.getByName("192.168.1.178");
+            //address = InetAddress.getByName("192.168.1.178");
+            //address = InetAddress.getByName("127.0.0.1");
+            address = InetAddress.getByName("localhost");
             mensaje = "runLF";
             mensaje_bytes = mensaje.getBytes();
             paquete = new DatagramPacket(mensaje_bytes, mensaje.length(), address, 5002);
@@ -73,27 +75,31 @@ class comInterfaz extends Lofar implements Runnable {
                 cadenaMensaje = new String(RecogerServidor_bytes).trim();   //Convertimos el mensaje recibido en un string
                 //System.out.println(cadenaMensaje);                          //Imprimimos el paquete recibido
                 if ("LF_OFF".equals(cadenaMensaje)) {
-                    window.setVisible(false);
+                    window.setExtendedState(JFrame.ICONIFIED);
                     System.out.println("LOFAR esta deshabilitado");
                     if (cspps.getHabilitado()) {
                         cspps.setHabilitado(false);
                     }
                 } else if ("LF_ON".equals(cadenaMensaje)) {
-                    window.setVisible(true);
+                    window.setExtendedState(JFrame.NORMAL);
                     System.out.println("LOFAR esta habilitado");
                     if (!cspps.getHabilitado()) {
                         cspps.setHabilitado(true);
                     }
+                } else if ("LF_EXIT".equals(cadenaMensaje)) {
+                    System.exit(0);
+                } else if ("LF_SAVE".equals(cadenaMensaje)) {
+                    a.save("resource/lofarDataRcv.txt");
                 } else if (!("START OK!".equals(cadenaMensaje))) {
                     i = 0;
                     char[] charArray = cadenaMensaje.toCharArray();
-                    
+
                     Calendar cal = Calendar.getInstance();
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
                     texto = sdf.format(cal.getTime()) + ",";
                     //texto = "";
                     //if (!(charArray[1] == 's')) {
-                        /*for (char temp : charArray) {
+                    /*for (char temp : charArray) {
                             if (i < 11 && ((int) temp > 0) && ((int) temp < 255)) {
                                 texto += Integer.toString((int) temp);
                                 if (i == 10) {
@@ -108,9 +114,9 @@ class comInterfaz extends Lofar implements Runnable {
                             i++;
                         }*/
                     //} else {
-                        for (char temp : charArray) {
-                            texto += temp;
-                        }
+                    for (char temp : charArray) {
+                        texto += temp;
+                    }
                     //}
                     a.escribirTxt("resource/lofarDataRcv.txt", texto);
                     window.repaint();
@@ -122,83 +128,5 @@ class comInterfaz extends Lofar implements Runnable {
             System.err.println(e.getMessage());
             System.exit(1);
         }
-    }
-
-    public void sethw(String hw) {
-        this.hw = hw;
-    }
-
-    public String gethw() {
-        return hw;
-    }
-
-    @Override
-    public void run() {                                 //trato de usar el run predefinido del thread, pero aun marca un error, la vintana no se hace visible e invisible 
-        /*try {
-            mensaje_bytes = mensaje.getBytes();
-            address = InetAddress.getByName("192.168.1.178");
-            mensaje = "runLF";
-            mensaje_bytes = mensaje.getBytes();
-            paquete = new DatagramPacket(mensaje_bytes, mensaje.length(), address, 5002);
-            socket = new DatagramSocket();
-            socket.send(paquete);
-            System.out.println("enviamos runLOFAR");
-            //RecogerServidor_bytes = new byte[256];
-            comSPPsend cspps = new comSPPsend();
-            cspps.start();
-            //comSSPreceive csppr = new comSSPreceive();
-            //csppr.start();
-            for (int i = 0; i < 101; i++) {
-                n[i] = 0;
-            }
-            archivo a = new archivo();
-
-            int i;
-            do {
-                RecogerServidor_bytes = new byte[256];
-                servPaquete = new DatagramPacket(RecogerServidor_bytes, 256);
-                socket.receive(servPaquete);
-                cadenaMensaje = new String(RecogerServidor_bytes).trim();   //Convertimos el mensaje recibido en un string
-                //System.out.println(cadenaMensaje);                          //Imprimimos el paquete recibido
-                if ("LF_OFF".equals(cadenaMensaje)) {
-                     super.setVisible(false);
-                     super.repaint();
-                     super.hw="HOLA MUNDO lo he logrado ";
-                     super.d.sethw("HOLA MUNDO!!! LO LOGRE");
-                    System.out.println("LOFAR esta deshabilitado");
-                    if (cspps.getHabilitado()) {
-                        cspps.setHabilitado(false);
-                    }
-                } else if ("LF_ON".equals(cadenaMensaje)) {
-                      super.setVisible(true);
-                      super.repaint();
-                    System.out.println("LOFAR esta habilitado");
-                    if (!cspps.getHabilitado()) {
-                        cspps.setHabilitado(true);
-                    }
-                } else if (!("START OK!".equals(cadenaMensaje))) {
-                    i = 0;
-                    char[] charArray = cadenaMensaje.toCharArray();
-                        texto = "";
-                    for (char temp : charArray) {
-                        if (i < 101 && ((int) temp > 0) && ((int) temp < 255)) {
-                            texto += Integer.toString((int)temp);
-                            if(i==100)
-                                texto += ";";
-                            else
-                                texto += ",";
-                        }
-                        i++;
-                    }
-                    //a.escribirTxt("resource/dataEj1.txt", texto);
-                    //System.out.println("intento mandar un hola...");
-                    super.hw="HOLA MUNDO + "+texto;
-                    super.repaint();
-                }
-            } while (true);
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
-        }*/
     }
 }

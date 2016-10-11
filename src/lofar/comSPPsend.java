@@ -47,7 +47,8 @@ public class comSPPsend extends Thread {
         System.out.println("El run de comunicacion al SSP modo solicitud a iniciado");
         try {
             mensaje_bytes = mensaje.getBytes();
-            address = InetAddress.getByName("192.168.1.178");
+            //address = InetAddress.getByName("192.168.1.178");
+            address = InetAddress.getByName("localhost");
             /*mensaje = "START COMMUNICATION";
             mensaje_bytes = mensaje.getBytes();
             paquete = new DatagramPacket(mensaje_bytes, mensaje.length(), address, 8888);
