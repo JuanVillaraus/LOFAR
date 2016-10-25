@@ -99,13 +99,11 @@ public class Lofar extends JComponent {
     protected void paintComponent(Graphics g) {
         gn++;
         System.out.println("paint component ciclo numero: " + gn);
-        //System.out.println(hw);
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, getSize().width, getSize().height);
 
         sizeCanalX = (getSize().width - inicioCascadaX) / 62;
         sizeCanalY = ((getSize().height) - inicioCascadaY) / 100;
-        //despliegue d = new despliegue();
         desp(g, sizeCanalX, sizeCanalY);
 
     }
@@ -126,35 +124,28 @@ public class Lofar extends JComponent {
         c = 0;
         int t = 0;
 
-        /*g.setColor(Color.WHITE);
-        g.drawLine(45, 100, 45, getSize().height - 20);
-        g.drawLine(45, getSize().height - 20, getSize().width, getSize().height - 20);
-        g.drawString("t/seg", 5, 100);
-        for (int i = 0; i < 11; i++) {
-            g.drawLine(45 + ((limX * 10) * i), getSize().height - 20, 45 + ((limX * 10) * i), getSize().height - 15);
-            g.drawString((i * 100) + "", 30 + ((limX * 10) * i), getSize().height - 1);
-        }*/
+        int colorUp = Integer.parseInt(a.leerTxtLine("resource/colorUp.txt"));
+        int colorDw = Integer.parseInt(a.leerTxtLine("resource/colorDw.txt"));
+
         g.setColor(Color.WHITE);
         g.drawLine(inicioCascadaX - 5, 1, inicioCascadaX - 5, inicioCascadaY - 30);
         g.drawLine(inicioCascadaX - 5, inicioCascadaY - 30, getSize().width, inicioCascadaY - 30);
         g.drawLine(inicioCascadaX - 5, inicioCascadaY, inicioCascadaX - 5, getSize().height - 20);
         g.drawLine(inicioCascadaX - 10, 5, inicioCascadaX - 5, 5);
         g.drawString("-65", inicioCascadaX - 35, 11);
-        g.drawLine(inicioCascadaX - 10, (((inicioCascadaY - 35)+5)/2), inicioCascadaX - 5, (((inicioCascadaY - 35)+5)/2));
-        g.drawString("-95", inicioCascadaX - 35, (((inicioCascadaY - 35)+5)/2)+5);
+        g.drawLine(inicioCascadaX - 10, (((inicioCascadaY - 35) + 5) / 2), inicioCascadaX - 5, (((inicioCascadaY - 35) + 5) / 2));
+        g.drawString("-95", inicioCascadaX - 35, (((inicioCascadaY - 35) + 5) / 2) + 5);
         g.drawLine(inicioCascadaX - 10, inicioCascadaY - 35, inicioCascadaX - 5, inicioCascadaY - 35);
         g.drawString("-125", inicioCascadaX - 40, inicioCascadaY - 30);
-        //g.drawLine(inicioCascadaX - 5, getSize().height - 20, getSize().width, getSize().height - 20);
-        //g.drawString("t/seg", 5, 100);
         for (int i = 0; i < 7; i++) {
-            g.drawLine(inicioCascadaX + (((limX*62) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((limX*62) / 6) * i), inicioCascadaY - 25);
+            g.drawLine(inicioCascadaX + (((limX * 62) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((limX * 62) / 6) * i), inicioCascadaY - 25);
             if (i != 6) {
-                g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (((limX*62) / 6) * i), inicioCascadaY - 10);
+                g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (((limX * 62) / 6) * i), inicioCascadaY - 10);
             } else {
-                g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (limX*62) - 20, inicioCascadaY - 10);
+                g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (limX * 62) - 20, inicioCascadaY - 10);
             }
         }
-        
+
         infoRcv = a.leerTxtLine(DIR, 100);
         char[] charArray = infoRcv.toCharArray();
         for (char temp : charArray) {
@@ -178,21 +169,23 @@ public class Lofar extends JComponent {
                     if (bTopLine) {
                         topLine[c] = n;
                     }
-                    if (n >= 0 && n <= 255) {
-                        g.setColor(new Color(0, (n - 55) * 4, 0));
-                        g.fillRect(xi, yi, limX, limY);
-                        xi += limX;
-                        box = "";
-                        c++;
+                    if (((n - 55) * 4) < colorDw) {
+                        g.setColor(Color.BLACK);
+                    } else if (((n - 55) * 4) > colorUp) {
+                        g.setColor(Color.GREEN);
                     } else {
-                        System.out.println("Error #??: el valor a desplegar esta fuera de rango");
+                        g.setColor(new Color(0, ((((n - 55) * 4) - colorDw ) * 240 / (colorUp - colorDw )), 0));
                     }
+                    g.fillRect(xi, yi, limX, limY);
+                    xi += limX;
+                    box = "";
+                    c++;
                 }
             } else if (temp == ';') {
                 n = Integer.parseInt(box);
                 if (n < 55) {
                     n = 55;
-                } 
+                }
                 if (n > 115) {
                     n = 115;
                 }
@@ -200,6 +193,12 @@ public class Lofar extends JComponent {
                     topLine[c] = n;
                 }
                 if (n >= 0 && n <= 255) {
+                    if (n < (colorDw * 60 / 255) + 55) {
+                        n = 55;
+                    }
+                    if (n > (colorUp * 60 / 255) + 55) {
+                        n = 115;
+                    }
                     g.setColor(new Color(0, (n - 55) * 4, 0));
                     g.fillRect(xi, yi, limX, limY);
                     box = "";
@@ -214,15 +213,13 @@ public class Lofar extends JComponent {
                     g.drawString(topWord + "", 5, yi + 3);
                 }
                 bTopWord = true;
-                info=topWord+",";
+                info = topWord + ",";
                 topWord = "";
             } else {
                 System.out.println("Error #??: el valor a desplegar no se reconoce");
             }
         }
         xi = (limX / 2) + inicioCascadaX;
-        //yi = 95;
-        //info = "";
         g.setColor(new Color(0, 150, 0));
         for (int i = 0; i < 61; i++) {
             g.drawLine(xi, 95 - (((topLine[i]) - 55) * 90 / 60), xi + limX, 95 - (((topLine[i + 1]) - 55) * 90 / 60));
@@ -239,8 +236,15 @@ public class Lofar extends JComponent {
                     System.err.println(e.getMessage());
                     System.exit(1);
                 }
-                info="";
+                info = "";
             }
         }
+
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setColor(Color.WHITE);
+        float[] dash = {5};
+        g2d.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1.0f, dash, 0.0f));
+        g2d.drawLine(inicioCascadaX - 5, 95 - (colorUp * 90 / 255), getSize().width, 95 - (colorUp * 90 / 255));
+        g2d.drawLine(inicioCascadaX - 5, 95 - (colorDw * 90 / 255), getSize().width, 95 - (colorDw * 90 / 255));
     }
 }

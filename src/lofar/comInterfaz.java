@@ -32,24 +32,13 @@ class comInterfaz extends Thread {
     String cadenaMensaje = "";
     DatagramPacket servPaquete;
     byte[] RecogerServidor_bytes = new byte[256];
-    //String str;
-    //despliegue d = new despliegue();
-    //int[] n = new int[62];
     String texto = "";
-    String hw = "...esperando un hola";
-
-    public void comInterfaz() { // throws SocketException, UnknownHostException
-
-        System.out.println("inicia public void comunicacion");
-    }
+    int opcion;
 
     //@Override
-    //public void run(JFrame window, despliegue d) {
     public void run(JFrame window) {
         try {
             mensaje_bytes = mensaje.getBytes();
-            //address = InetAddress.getByName("192.168.1.178");
-            //address = InetAddress.getByName("127.0.0.1");
             address = InetAddress.getByName("localhost");
             mensaje = "runLF";
             mensaje_bytes = mensaje.getBytes();
@@ -57,14 +46,8 @@ class comInterfaz extends Thread {
             socket = new DatagramSocket();
             socket.send(paquete);
             System.out.println("enviamos runLOFAR");
-            //RecogerServidor_bytes = new byte[256];
             comSPPsend cspps = new comSPPsend();
             cspps.start();
-            //comSSPreceive csppr = new comSSPreceive();
-            //csppr.start();
-            /*for (int i = 0; i < 62; i++) {
-                n[i] = 0;
-            }*/
             archivo a = new archivo();
 
             int i;
@@ -74,6 +57,8 @@ class comInterfaz extends Thread {
                 socket.receive(servPaquete);
                 cadenaMensaje = new String(RecogerServidor_bytes).trim();   //Convertimos el mensaje recibido en un string
                 //System.out.println(cadenaMensaje);                          //Imprimimos el paquete recibido
+                opcion = 1;
+                texto = "";
                 if ("LF_OFF".equals(cadenaMensaje)) {
                     window.setExtendedState(JFrame.ICONIFIED);
                     System.out.println("LOFAR esta deshabilitado");
@@ -90,38 +75,19 @@ class comInterfaz extends Thread {
                     System.exit(0);
                 } else if ("LF_SAVE".equals(cadenaMensaje)) {
                     a.save("resource/lofarDataRcv.txt");
+                } else if ("LF_RP".equals(cadenaMensaje)) {                     //Lofar repaint
+                    window.repaint();
                 } else if (!("START OK!".equals(cadenaMensaje))) {
-                    i = 0;
                     char[] charArray = cadenaMensaje.toCharArray();
-
-                    Calendar cal = Calendar.getInstance();
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                    texto = sdf.format(cal.getTime()) + ",";
-                    //texto = "";
-                    //if (!(charArray[1] == 's')) {
-                    /*for (char temp : charArray) {
-                            if (i < 11 && ((int) temp > 0) && ((int) temp < 255)) {
-                                texto += Integer.toString((int) temp);
-                                if (i == 10) {
-                                    texto += ";";
-                                } else {
-                                    texto += ",";
-                                }
-                            } else {
-
-                            }
-                            System.out.println("Error #??: el valor a guardar esta fuera de rango");
-                            i++;
-                        }*/
-                    //} else {
                     for (char temp : charArray) {
                         texto += temp;
                     }
-                    //}
-                    a.escribirTxt("resource/lofarDataRcv.txt", texto);
+                    Calendar cal = Calendar.getInstance();
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                    texto = sdf.format(cal.getTime()) + ",";
+                    a.escribirTxtLine("resource/lofarDataRcv.txt", texto);
+
                     window.repaint();
-                } else if (!("EXIT!".equals(cadenaMensaje))) {
-                    System.exit(0);
                 }
             } while (true);
         } catch (Exception e) {
