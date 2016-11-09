@@ -84,7 +84,7 @@ class comInterfaz extends Thread {
                     }
                     Calendar cal = Calendar.getInstance();
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                    texto = sdf.format(cal.getTime()) + ",";
+                    texto += sdf.format(cal.getTime()) + ",";
                     a.escribirTxtLine("resource/lofarDataRcv.txt", texto);
 
                     window.repaint();

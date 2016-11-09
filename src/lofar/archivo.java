@@ -37,7 +37,7 @@ public class archivo {
     public String leerTxtLine(String dir, int lim) {                 //lee lo que haya en un archivo txt, recibe como parametros la direccion tipo String y devuelve el String del contenido en una sola linea
         try {
             BufferedReader bf = new BufferedReader(new FileReader(dir));
-            String temp = "";
+            String temp = ""; 
             String bfRead;
             while ((bfRead = bf.readLine()) != null && lim > 0) {
                 temp += bfRead;
