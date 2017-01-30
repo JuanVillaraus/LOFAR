@@ -5,15 +5,15 @@
  */
 package lofar;
 
-//import java.io.BufferedReader;
-//import java.io.InputStreamReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-//import java.net.SocketException;
-//import java.net.UnknownHostException;
+import java.util.Properties;
 import javax.swing.*;
 
 /**
@@ -22,18 +22,15 @@ import javax.swing.*;
  */
 class comInterfaz extends Thread {
 
-    //Definimos el sockets, número de bytes del buffer, y mensaje.
     DatagramSocket socket;
     InetAddress address;
     byte[] mensaje_bytes = new byte[256];
     String mensaje = "";
-    //Paquete
     DatagramPacket paquete;
     String cadenaMensaje = "";
     DatagramPacket servPaquete;
     byte[] RecogerServidor_bytes = new byte[256];
     String texto = "";
-    int opcion;
 
     //@Override
     public void run(JFrame window) {
@@ -45,38 +42,57 @@ class comInterfaz extends Thread {
             paquete = new DatagramPacket(mensaje_bytes, mensaje.length(), address, 5002);
             socket = new DatagramSocket();
             socket.send(paquete);
-            System.out.println("enviamos runLOFAR");
+            System.out.println("enviamos runLF para inicializar la comunicación con el software");
             comSPPsend cspps = new comSPPsend();
             cspps.start();
             archivo a = new archivo();
 
-            int i;
+            // int i;
             do {
                 RecogerServidor_bytes = new byte[256];
                 servPaquete = new DatagramPacket(RecogerServidor_bytes, 256);
                 socket.receive(servPaquete);
                 cadenaMensaje = new String(RecogerServidor_bytes).trim();   //Convertimos el mensaje recibido en un string
-                //System.out.println(cadenaMensaje);                          //Imprimimos el paquete recibido
-                opcion = 1;
                 texto = "";
-                if ("LF_OFF".equals(cadenaMensaje)) {
+                if ("OFF".equals(cadenaMensaje)) {
                     window.setExtendedState(JFrame.ICONIFIED);
-                    System.out.println("LOFAR esta deshabilitado");
+                    //System.out.println("LOFAR esta deshabilitado");
                     if (cspps.getHabilitado()) {
                         cspps.setHabilitado(false);
                     }
-                } else if ("LF_ON".equals(cadenaMensaje)) {
+                } else if ("ON".equals(cadenaMensaje)) {
                     window.setExtendedState(JFrame.NORMAL);
-                    System.out.println("LOFAR esta habilitado");
+                    //System.out.println("LOFAR esta habilitado");
                     if (!cspps.getHabilitado()) {
                         cspps.setHabilitado(true);
                     }
-                } else if ("LF_EXIT".equals(cadenaMensaje)) {
+                } else if ("EXIT".equals(cadenaMensaje)) {
                     System.exit(0);
-                } else if ("LF_SAVE".equals(cadenaMensaje)) {
+                } else if ("SAVE".equals(cadenaMensaje)) {
                     a.save("resource/lofarDataRcv.txt");
-                } else if ("LF_RP".equals(cadenaMensaje)) {                     //Lofar repaint
+                } else if ("RP".equals(cadenaMensaje)) {                     //Lofar repaint
                     window.repaint();
+                } else if ("LONG".equals(cadenaMensaje)) {                
+                    Properties prop = new Properties();
+                    InputStream input = null;
+                    try {
+                        input = new FileInputStream("config.properties");
+                        prop.load(input);
+                        mensaje = "LONG" + prop.getProperty("longLF") + ";";
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    } finally {
+                        if (input != null) {
+                            try {
+                                input.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    mensaje_bytes = mensaje.getBytes();
+                    paquete = new DatagramPacket(mensaje_bytes, mensaje.length(), address, 5002);
+                    socket.send(paquete);
                 } else if (!("START OK!".equals(cadenaMensaje))) {
                     char[] charArray = cadenaMensaje.toCharArray();
                     for (char temp : charArray) {
@@ -84,7 +100,7 @@ class comInterfaz extends Thread {
                     }
                     Calendar cal = Calendar.getInstance();
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                    texto += sdf.format(cal.getTime()) + ",";
+                    texto = sdf.format(cal.getTime()) + "," + texto;
                     a.escribirTxtLine("resource/lofarDataRcv.txt", texto);
 
                     window.repaint();

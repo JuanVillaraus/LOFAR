@@ -27,6 +27,7 @@ public class Lofar extends JComponent {
     int ml[];
     int gn = 0;
     String info, infoRcv;
+    int longLF;
 
     public static void main(String[] args) {
         JFrame window = new JFrame();
@@ -47,9 +48,7 @@ public class Lofar extends JComponent {
         int posicionY = 0;
         try {
             input = new FileInputStream("config.properties");
-            //load a properties file
             prop.load(input);
-            //get the propperty value and print it out
             posicionX = Integer.parseInt(prop.getProperty("posicionX"));
             posicionY = Integer.parseInt(prop.getProperty("posicionY"));
         } catch (IOException ex) {
@@ -81,6 +80,7 @@ public class Lofar extends JComponent {
             //get the propperty value and print it out
             dimensionX = Integer.parseInt(prop.getProperty("dimensionX"));
             dimensionY = Integer.parseInt(prop.getProperty("dimensionY"));
+            longLF = Integer.parseInt(prop.getProperty("longLF"));
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
@@ -98,18 +98,17 @@ public class Lofar extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         gn++;
-        System.out.println("paint component ciclo numero: " + gn);
+        //System.out.println("paint component ciclo numero: " + gn);
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, getSize().width, getSize().height);
 
-        sizeCanalX = (getSize().width - inicioCascadaX) / 62;
+        sizeCanalX = (getSize().width - inicioCascadaX) / longLF;
         sizeCanalY = ((getSize().height) - inicioCascadaY) / 100;
         desp(g, sizeCanalX, sizeCanalY);
 
     }
 
     public void desp(Graphics g, int limX, int limY) {
-        System.out.println("estoy en el despliegue");
         archivo a = new archivo();
 
         String DIR = "resource/lofarDataRcv.txt";   //variable estatica que guarda el nombre del archivo donde se guardara la informacion recivida para desplegarse
@@ -117,7 +116,7 @@ public class Lofar extends JComponent {
         xi = inicioCascadaX;     //variable de control grafico en Y que guarda la acumulacion del incremento para la graficacion
         yi = inicioCascadaY;     //variable de control grafico en Y que guarda la acumulacion del incremento para la graficacion
         String box = ""; //variable que guarda de char en char hasta llegar al tope asignado para proceder a convertirlo a int
-        int[] topLine = new int[62];
+        int[] topLine = new int[longLF];
         String topWord = "";
         boolean bTopLine = true;
         boolean bTopWord = true;
@@ -138,11 +137,11 @@ public class Lofar extends JComponent {
         g.drawLine(inicioCascadaX - 10, inicioCascadaY - 35, inicioCascadaX - 5, inicioCascadaY - 35);
         g.drawString("-125", inicioCascadaX - 40, inicioCascadaY - 30);
         for (int i = 0; i < 7; i++) {
-            g.drawLine(inicioCascadaX + (((limX * 62) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((limX * 62) / 6) * i), inicioCascadaY - 25);
+            g.drawLine(inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 25);
             if (i != 6) {
-                g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (((limX * 62) / 6) * i), inicioCascadaY - 10);
+                g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (((limX * longLF) / 6) * i), inicioCascadaY - 10);
             } else {
-                g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (limX * 62) - 20, inicioCascadaY - 10);
+                g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (limX * longLF) - 20, inicioCascadaY - 10);
             }
         }
 
@@ -221,7 +220,7 @@ public class Lofar extends JComponent {
         }
         xi = (limX / 2) + inicioCascadaX;
         g.setColor(new Color(0, 150, 0));
-        for (int i = 0; i < 61; i++) {
+        for (int i = 0; i < longLF-1; i++) {
             g.drawLine(xi, 95 - (((topLine[i]) - 55) * 90 / 60), xi + limX, 95 - (((topLine[i + 1]) - 55) * 90 / 60));
             xi += limX;
             topLine[i] -= 180;
@@ -229,7 +228,7 @@ public class Lofar extends JComponent {
                 info += topLine[i] + ",";
             } else {
                 info += topLine[i] + ";";
-                System.out.println("guardare en lofarData.txt: " + info);
+                //System.out.println("guardare en lofarData.txt: " + info);
                 try {
                     a.escribirTxt("resource/lofarData.txt", info);
                 } catch (Exception e) {
