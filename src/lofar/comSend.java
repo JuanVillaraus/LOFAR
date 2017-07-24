@@ -5,8 +5,6 @@
  */
 package lofar;
 
-//import java.io.BufferedReader;
-//import java.io.InputStreamReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,22 +17,20 @@ import java.util.Properties;
  *
  * @author juan
  */
-public class comSPPsend extends Thread {
+public class comSend extends Thread {
 
     //Definimos el sockets, número de bytes del buffer, y mensaje.
     DatagramSocket socket;
     InetAddress address;
     byte[] mensaje_bytes = new byte[256];
     String mensaje = "";
+    int puerto = 0;
     //Paquete
     DatagramPacket paquete;
-    //String cadenaMensaje = "";
-    //DatagramPacket servPaquete;
-    //byte[] RecogerServidor_bytes = new byte[256];
     boolean habilitado = false;
     int t = 1000;
 
-    public comSPPsend() {
+    public comSend() {
 
     }
 
@@ -45,21 +41,19 @@ public class comSPPsend extends Thread {
     public void setHabilitado(boolean h) {
         this.habilitado = h;
     }
+    
+    public void setPuerto(int puerto){
+        this.puerto = puerto;
+    }
 
     @Override
     public void run() {
         try {
             mensaje_bytes = mensaje.getBytes();
-            //address = InetAddress.getByName("192.168.1.178");
             address = InetAddress.getByName("localhost");
-            /*mensaje = "START COMMUNICATION";
-            mensaje_bytes = mensaje.getBytes();
-            paquete = new DatagramPacket(mensaje_bytes, mensaje.length(), address, 8888);
-            socket = new DatagramSocket();
-            socket.send(paquete);*/
             mensaje = "LOFAR";
             mensaje_bytes = mensaje.getBytes();
-            paquete = new DatagramPacket(mensaje_bytes, mensaje.length(), address, 5002);
+            paquete = new DatagramPacket(mensaje_bytes, mensaje.length(), address, puerto);
             socket = new DatagramSocket();
             int n = 0;
             Properties prop = new Properties();
