@@ -35,6 +35,7 @@ public class despliegue extends JComponent {
     private int[] iActual;
     private int[][] waterfall;
     private String[] time;
+    FFT f = new FFT();
 
     public despliegue(JFrame window) {
         window.add(this);
@@ -80,33 +81,18 @@ public class despliegue extends JComponent {
         }
         window.setSize(dimensionX, dimensionY);
         window.setLocation(posicionX, posicionY);
-        if ("SSPV".equals(modelo)) {
-            waterfall = new int[100][longLF];
-            for (int x = 0; x < 100; x++) {                                                 //inicializa el waterfall en cero
-                for (int y = 0; y < longLF; y++) {
-                    waterfall[x][y] = LimYdw;
-                }
+        waterfall = new int[100][longLF];
+        for (int x = 0; x < 100; x++) {                                                 //inicializa el waterfall en cero
+            for (int y = 0; y < longLF; y++) {
+                waterfall[x][y] = LimYdw;
             }
-            setWaterfall(waterfall);
-            iActual = new int[longLF];
-            for (int i = 0; i < longLF; i++) {
-                iActual[i] = 0;
-            }
-            setIActual(iActual);
-        } else {
-            waterfall = new int[100][longLF];
-            for (int x = 0; x < 100; x++) {                                                 //inicializa el waterfall en cero
-                for (int y = 0; y < longLF; y++) {
-                    waterfall[x][y] = 55;
-                }
-            }
-            setWaterfall(waterfall);
-            iActual = new int[longLF];
-            for (int i = 0; i < longLF; i++) {
-                iActual[i] = 55;
-            }
-            setIActual(iActual);
         }
+        setWaterfall(waterfall);
+        iActual = new int[longLF];
+        for (int i = 0; i < longLF; i++) {
+            iActual[i] = 0;
+        }
+        setIActual(iActual);
         time = new String[100];
         for (int i = 0; i < 100; i++) {
             time[i] = "";
@@ -208,128 +194,124 @@ public class despliegue extends JComponent {
         g.drawLine(inicioCascadaX - 5, inicioCascadaY - 30, getSize().width, inicioCascadaY - 30);
         g.drawLine(inicioCascadaX - 5, inicioCascadaY, inicioCascadaX - 5, getSize().height - 20);
 
-        if ("SSPP".equals(modelo)) {
-            g.drawLine(inicioCascadaX - 5, 1, inicioCascadaX - 5, inicioCascadaY - 30);
-            g.drawLine(inicioCascadaX - 5, inicioCascadaY - 30, getSize().width, inicioCascadaY - 30);
-            g.drawLine(inicioCascadaX - 5, inicioCascadaY, inicioCascadaX - 5, getSize().height - 20);
-            g.drawLine(inicioCascadaX - 10, 5, inicioCascadaX - 5, 5);
-            g.drawString(LimYup + "", inicioCascadaX - 35, 11);
-            g.drawLine(inicioCascadaX - 10, (((inicioCascadaY - 35) + 5) / 2), inicioCascadaX - 5, (((inicioCascadaY - 35) + 5) / 2));
-            g.drawString(((LimYup + LimYdw) / 2) + "", inicioCascadaX - 35, (((inicioCascadaY - 35) + 5) / 2) + 5);
-            g.drawLine(inicioCascadaX - 10, inicioCascadaY - 35, inicioCascadaX - 5, inicioCascadaY - 35);
-            g.drawString(LimYdw + "", inicioCascadaX - 40, inicioCascadaY - 30);
-            for (int i = 0; i <= 6; i++) {
-                g.drawLine(inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 25);
-                if (i != 6) {
-                    g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (((limX * longLF) / 6) * i), inicioCascadaY - 10);
-                } else {
-                    g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + (limX * longLF) - 10, inicioCascadaY - 10);
-                }
+        g.drawLine(inicioCascadaX - 5, 1, inicioCascadaX - 5, inicioCascadaY - 30);
+        g.drawLine(inicioCascadaX - 5, inicioCascadaY - 30, getSize().width, inicioCascadaY - 30);
+        g.drawLine(inicioCascadaX - 5, inicioCascadaY, inicioCascadaX - 5, getSize().height - 20);
+        g.drawLine(inicioCascadaX - 10, 5, inicioCascadaX - 5, 5);
+        g.drawLine(inicioCascadaX - 10, (((inicioCascadaY - 35) + 5) / 2), inicioCascadaX - 5, (((inicioCascadaY - 35) + 5) / 2));
+        g.drawLine(inicioCascadaX - 10, inicioCascadaY - 35, inicioCascadaX - 5, inicioCascadaY - 35);
+        if (null != modelo) {
+            switch (modelo) {
+                case "SSF":
+                    g.drawString(LimYup - 120 + "", inicioCascadaX - 35, 11);
+                    g.drawString(((LimYup + LimYdw) / 2) - 120 + "", inicioCascadaX - 35, (((inicioCascadaY - 35) + 5) / 2) + 5);
+                    g.drawString(LimYdw - 120 + "", inicioCascadaX - 40, inicioCascadaY - 30);
+                    break;
+                default:
+                    g.drawString(LimYup - 185 + "", inicioCascadaX - 35, 11);
+                    g.drawString(((LimYup + LimYdw) / 2) - 185 + "", inicioCascadaX - 35, (((inicioCascadaY - 35) + 5) / 2) + 5);
+                    g.drawString(LimYdw - 185 + "", inicioCascadaX - 40, inicioCascadaY - 30);
+                    break;
             }
-        } else if ("SSF".equals(modelo)) {
-            g.drawLine(inicioCascadaX - 5, 1, inicioCascadaX - 5, inicioCascadaY - 30);
-            g.drawLine(inicioCascadaX - 5, inicioCascadaY - 30, getSize().width, inicioCascadaY - 30);
-            g.drawLine(inicioCascadaX - 5, inicioCascadaY, inicioCascadaX - 5, getSize().height - 20);
-            g.drawLine(inicioCascadaX - 10, 5, inicioCascadaX - 5, 5);
-            g.drawString("-65", inicioCascadaX - 35, 11);
-            g.drawLine(inicioCascadaX - 10, (((inicioCascadaY - 35) + 5) / 2), inicioCascadaX - 5, (((inicioCascadaY - 35) + 5) / 2));
-            g.drawString("-95", inicioCascadaX - 35, (((inicioCascadaY - 35) + 5) / 2) + 5);
-            g.drawLine(inicioCascadaX - 10, inicioCascadaY - 35, inicioCascadaX - 5, inicioCascadaY - 35);
-            g.drawString("-125", inicioCascadaX - 40, inicioCascadaY - 30);
-            for (int i = 0; i < 6; i++) {
-                g.drawLine(inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 25);
-                if (i != 5) {
-                    g.drawString((i * 2.5) + "KHz", inicioCascadaX + (((limX * longLF) / 6) * i) - 10, inicioCascadaY - 10);
-                } else {
-                    g.drawString((i * 2.5) + "KHz", inicioCascadaX + (((limX * longLF) / 6) * i) - 23, inicioCascadaY - 10);
-                }
-            }
-        } else if ("SSPV".equals(modelo)) {
-            g.drawLine(inicioCascadaX - 5, 1, inicioCascadaX - 5, inicioCascadaY - 30);
-            g.drawLine(inicioCascadaX - 5, inicioCascadaY - 30, getSize().width, inicioCascadaY - 30);
-            g.drawLine(inicioCascadaX - 5, inicioCascadaY, inicioCascadaX - 5, getSize().height - 20);
-            g.drawLine(inicioCascadaX - 10, 5, inicioCascadaX - 5, 5);
-            g.drawString(LimYup + "", inicioCascadaX - 35, 11);
-            g.drawLine(inicioCascadaX - 10, (((inicioCascadaY - 35) + 5) / 2), inicioCascadaX - 5, (((inicioCascadaY - 35) + 5) / 2));
-            g.drawString(((LimYup + LimYdw) / 2) + "", inicioCascadaX - 35, (((inicioCascadaY - 35) + 5) / 2) + 5);
-            g.drawLine(inicioCascadaX - 10, inicioCascadaY - 35, inicioCascadaX - 5, inicioCascadaY - 35);
-            g.drawString(LimYdw + "", inicioCascadaX - 40, inicioCascadaY - 30);
-            for (int i = 0; i < 7; i++) {
-                g.drawLine(inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 25);
-                if (i != 6) {
-                    g.drawString((i * 2.5) + "KHz", inicioCascadaX + (((limX * longLF) / 6) * i) - 10, inicioCascadaY - 10);
-                } else {
-                    g.drawString((i * 2.5) + "KHz", inicioCascadaX + (((limX * longLF) / 6) * i) - 23, inicioCascadaY - 10);
-                }
+        }
+        if (null != modelo) {
+            switch (modelo) {
+                case "SSPP":
+                    for (int i = 0; i <= 6; i++) {
+                        g.drawLine(inicioCascadaX + ((((limX * longLF) * 96) / 600) * i), inicioCascadaY - 30, inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 25);
+                        if (i != 6) {
+                            g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + ((((limX * longLF) * 96) / 600) * i), inicioCascadaY - 10);
+                        } else {
+                            g.drawString((i * 100) + "Hz", (inicioCascadaX - 20) + ((((limX * longLF) * 96) / 600) * i), inicioCascadaY - 10);
+                        }
+                    }
+                    break;
+                case "SSF":
+                    for (int i = 0; i < 9; i++) {
+                        g.drawLine(inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 25);
+                        if (i != 8) {
+                            g.drawString((i * 2.5) + "KHz", inicioCascadaX + (((limX * longLF) / 6) * i) - 15, inicioCascadaY - 10);
+                        } else {
+                            g.drawString((i * 2.5) + "KHz", inicioCascadaX + (((limX * longLF) / 6) * i) - 23, inicioCascadaY - 10);
+                        }
+                    }
+                    break;
+                case "SSPV":
+                    for (int i = 0; i < 7; i++) {
+                        g.drawLine(inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 25);
+                        if (i != 6) {
+                            g.drawString((i * 2.5) + "KHz", inicioCascadaX + (((limX * longLF) / 6) * i) - 10, inicioCascadaY - 10);
+                        } else {
+                            g.drawString((i * 2.5) + "KHz", inicioCascadaX + (((limX * longLF) / 6) * i) - 23, inicioCascadaY - 10);
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
         }
         //new-------------------------------------------------------------------------------------------------------------------
-        System.out.println(LimYup + " " + LimYdw + " " + iActual[0] + " " + (LimYup - LimYdw) + " " + (iActual[0] * 90 / (LimYup - LimYdw)) + " " + waterfall[0][0] + " " + (-1 * (waterfall[0][0] - LimYup) * 255 / (LimYup - LimYdw)));
+        //System.out.println(LimYup + " " + LimYdw + " " + iActual[0] + " " + (LimYup - LimYdw) + " " + (iActual[0] * 90 / (LimYup - LimYdw)) + " " + waterfall[0][0] + " " + (-1 * (waterfall[0][0] - LimYup) * 255 / (LimYup - LimYdw)));
         g.setColor(new Color(0, 150, 0));
-        if ("SSPV".equals(modelo)) {
-            for (int i = 0; i < longLF - 1; i++) {
-                /*if (iActual[i] < 0) {
+        if (null != modelo) {
+            switch (modelo) {
+                case "SSF":
+                    for (int i = 0; i < longLF - 1; i++) {
+                        //System.out.print(iActual[i] + " ");
+                        g.drawLine(xi, -1 * (((iActual[i]) - LimYup) * 90 / (LimYup - LimYdw)), xi + limX, -1 * (((iActual[i + 1]) - LimYup) * 90 / (LimYup - LimYdw)));
+                        xi += limX;
+                    }
+                    break;
+                case "SSPV":
+                    for (int i = 0; i < longLF - 1; i++) {
+                        /*if (iActual[i] < 0) {
                     iActual[i] = 0;
-                } else if (iActual[i] > 255) {
+                    } else if (iActual[i] > 255) {
                     iActual[i] = 255;
-                }*/
-                System.out.print(iActual[i] + " ");
-                //g.drawLine(xi, 95 - (iActual[i] * 90 / 255), xi + limX, 95 - (iActual[i + 1] * 90 / 255));
-                g.drawLine(xi, -1 * ((iActual[i] - LimYup) * 90 / (LimYup - LimYdw)), xi + limX, -1 * ((iActual[i + 1] - LimYup) * 90 / (LimYup - LimYdw)));
-                xi += limX;
-            }
-        } else {
-            for (int i = 0; i < longLF - 1; i++) {
-                if (iActual[i] < 55) {
-                    iActual[i] = 55;
-                } else if (iActual[i] > 115) {
-                    iActual[i] = 115;
-                }
-                g.drawLine(xi, 95 - (((iActual[i]) - 55) * 90 / 60), xi + limX, 95 - (((iActual[i + 1]) - 55) * 90 / 60));
-                //g.drawLine(xi, 95 - (iActual[i] * 90 / 255), xi + limX, 95 - (iActual[i + 1] * 90 / 255));
-                xi += limX;
+                    }*/
+                        //System.out.print(iActual[i] + " ");
+                        //g.drawLine(xi, 95 - (iActual[i] * 90 / 255), xi + limX, 95 - (iActual[i + 1] * 90 / 255));
+                        g.drawLine(xi, -1 * ((iActual[i] - LimYup) * 90 / (LimYup - LimYdw)), xi + limX, -1 * ((iActual[i + 1] - LimYup) * 90 / (LimYup - LimYdw)));
+                        xi += limX;
+                    }
+                    break;
+                default:
+                    for (int i = 0; i < longLF - 1; i++) {
+                        if (iActual[i] < 55) {
+                            iActual[i] = 55;
+                        } else if (iActual[i] > 115) {
+                            iActual[i] = 115;
+                        }
+                        g.drawLine(xi, 95 - (((iActual[i]) - 55) * 90 / 60), xi + limX, 95 - (((iActual[i + 1]) - 55) * 90 / 60));
+                        //g.drawLine(xi, 95 - (iActual[i] * 90 / 255), xi + limX, 95 - (iActual[i + 1] * 90 / 255));
+                        xi += limX;
+                    }
+                    break;
             }
         }
 
         for (int x = 0; x < waterfall.length; x++) {
             xi = inicioCascadaX;
             for (int y = 0; y < waterfall[x].length; y++) {
-                if ("SSPV".equals(modelo)) {
-                    if (waterfall[x][y] > LimYup && waterfall[x][y] < LimYdw) {
-                        System.out.println("Error #??: el valor a desplegar esta fuera de rango, se ajustará");
-                        if (waterfall[x][y] > LimYup) {
-                            waterfall[x][y] = LimYup;
-                        } else if (waterfall[x][y] < LimYdw) {
-                            waterfall[x][y] = LimYdw;
-                        }
-                    }
-                    if ((-1 * (waterfall[x][y] - LimYup) * 255 / (LimYup - LimYdw)) < colorDw) {
-                        g.setColor(Color.BLACK);
-                    } else if ((-1 * (waterfall[x][y] - LimYup) * 255 / (LimYup - LimYdw)) > colorUp) {
-                        g.setColor(Color.GREEN);
-                    } else {
-                    
-                        //g.setColor(new Color(0, (waterfall[x][y] - colorDw) * 255 / (colorUp - colorDw), 0));
-                        g.setColor(new Color(0, 255-(((-1 * ((waterfall[x][y] - LimYup) * 255 / (LimYup - LimYdw))) - colorDw) * 255 / (colorUp - colorDw)), 0));
-                    }
-                } else {
-                    if (waterfall[x][y] < 0 && waterfall[x][y] > 255) {
-                        System.out.println("Error #??: el valor a desplegar esta fuera de rango, se ajustará");
-                        if (waterfall[x][y] < 55) {
-                            waterfall[x][y] = 55;
-                        } else if (waterfall[x][y] > 115) {
-                            waterfall[x][y] = 115;
-                        }
-                    }
-                    if (waterfall[x][y] < colorDw) {
-                        g.setColor(Color.BLACK);
-                    } else if (waterfall[x][y] > colorUp) {
-                        g.setColor(Color.GREEN);
-                    } else {
-                        g.setColor(new Color(0, ((((waterfall[x][y] - 55) * 4) - colorDw) * 240 / (colorUp - colorDw)), 0));
-                        //g.setColor(new Color(0, (waterfall[x][y] - colorDw) * 255 / (colorUp - colorDw), 0));
+
+                if (waterfall[x][y] > LimYup && waterfall[x][y] < LimYdw) {
+                    System.out.println("LOFAR/despliegue - Error #??: el valor a desplegar esta fuera de rango, se ajustará");
+                    if (waterfall[x][y] > LimYup) {
+                        waterfall[x][y] = LimYup;
+                    } else if (waterfall[x][y] < LimYdw) {
+                        waterfall[x][y] = LimYdw;
                     }
                 }
+                if ((-1 * (waterfall[x][y] - LimYup) * 255 / (LimYup - LimYdw)) < colorDw) {
+                    g.setColor(Color.BLACK);
+                } else if ((-1 * (waterfall[x][y] - LimYup) * 255 / (LimYup - LimYdw)) > colorUp) {
+                    g.setColor(Color.GREEN);
+                } else {
+
+                    //g.setColor(new Color(0, (waterfall[x][y] - colorDw) * 255 / (colorUp - colorDw), 0));
+                    g.setColor(new Color(0, 255 - (((-1 * ((waterfall[x][y] - LimYup) * 255 / (LimYup - LimYdw))) - colorDw) * 255 / (colorUp - colorDw)), 0));
+                }
+
                 g.fillRect(xi, yi, limX, limY);
                 if ((x % 10) == 0) {
                     g.setColor(Color.WHITE);
@@ -369,14 +351,14 @@ public class despliegue extends JComponent {
             } else {
                 try {
                     infoActualNum[n] = Integer.parseInt(info);
-                    if (infoActualNum[n] < 55) {
-                        infoActualNum[n] = 55;
-                    }
-                    if (infoActualNum[n] > 115) {
-                        infoActualNum[n] = 115;
-                    }
                 } catch (Exception e) {
-                    System.err.println(e.getMessage());
+                    System.err.println("LOFAR/despliegue - Error al convertir la información recivida en numero " + e.getMessage());
+                }
+                if (infoActualNum[n] < LimYdw) {
+                    infoActualNum[n] = LimYdw;
+                }
+                if (infoActualNum[n] > LimYup) {
+                    infoActualNum[n] = LimYup;
                 }
                 info = "";
                 n++;
@@ -402,7 +384,35 @@ public class despliegue extends JComponent {
         repaint();
     }
 
-    public void setInfo(int[] infoActualNum, String hora) {
+    public void setInfo(int[] infoActual, String hora) {
+        
+        double[] audio = new double[longLF*2];
+        for (int x = 0; x < audio.length; x++) {
+            audio[x] = infoActual[x];
+        }
+        
+        
+        
+        double[] fft = new double[longLF*2];
+        int[] fftInt = new int[longLF];
+        fft = f.FFT(audio);
+        for (int i = 0; i < fftInt.length; i++) {
+            fftInt[i]=(int)fft[i];
+        }
+        
+        int[] infoActualNum = new int[longLF];
+        for (int x = 0; x < infoActualNum.length; x++) {
+            infoActualNum[x] = fftInt[x];
+        }
+        
+        for (int x = 0; x < infoActualNum.length; x++) {
+            if (infoActualNum[x] < LimYdw) {
+                infoActualNum[x] = LimYdw;
+            }
+            if (infoActualNum[x] > LimYup) {
+                infoActualNum[x] = LimYup;
+            }
+        }
         setIActual(infoActualNum);
         waterfall = getWaterfall();
         for (int x = waterfall.length - 1; x > 0; x--) {
@@ -419,5 +429,6 @@ public class despliegue extends JComponent {
         tiempoLocal = 0;
         //}
         repaint();
+        System.out.println();
     }
 }

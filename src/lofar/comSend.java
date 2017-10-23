@@ -5,13 +5,9 @@
  */
 package lofar;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.Properties;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 /**
  *
@@ -19,7 +15,6 @@ import java.util.Properties;
  */
 public class comSend extends Thread {
 
-    //Definimos el sockets, número de bytes del buffer, y mensaje.
     DatagramSocket socket;
     InetAddress address;
     byte[] mensaje_bytes = new byte[256];
@@ -62,14 +57,14 @@ public class comSend extends Thread {
                 input = new FileInputStream("config.properties");
                 prop.load(input);
                 t = Integer.parseInt(prop.getProperty("timeSend"));
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
             } finally {
                 if (input != null) {
                     try {
                         input.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        System.err.println(e.getMessage());
                     }
                 }
             }
@@ -82,7 +77,7 @@ public class comSend extends Thread {
                 try {
                     sleep(t);                                //espera un segundo
                 } catch (Exception e) {                     
-                    Thread.currentThread().interrupt();
+                    System.err.println(e.getMessage());
                 }
             }
         } catch (Exception e) {
