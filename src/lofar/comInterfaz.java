@@ -23,6 +23,7 @@ class comInterfaz extends Thread {
     String modelo = "";
     String mensaje = "";
     DatagramPacket paquete;
+    DatagramPacket paqueteSend;
     int puerto = 0;
     String cadenaMensaje = "";
     DatagramPacket servPaquete;
@@ -76,10 +77,14 @@ class comInterfaz extends Thread {
                 }
             }
             address = InetAddress.getByName("localhost");
+            socket = new DatagramSocket();
+            mensaje = "LOFAR";
+            mensaje_bytes = mensaje.getBytes();
+            paqueteSend = new DatagramPacket(mensaje_bytes, mensaje.length(), address, puerto);
+            //socket.send(paqueteSend);
             mensaje = "runLF";
             mensaje_bytes = mensaje.getBytes();
             paquete = new DatagramPacket(mensaje_bytes, mensaje.length(), address, puerto);
-            socket = new DatagramSocket();
             socket.send(paquete);
             System.out.println("LOFAR/comInterfaz - enviamos " + mensaje + " para inicializar la comunicación con el software");
 
@@ -93,13 +98,13 @@ class comInterfaz extends Thread {
                 if (null != cadenaMensaje) {
                     switch (cadenaMensaje) {
                         case "RUN":
-                        cspv.start();
-                        try {
-                            sleep(300);
-                        } catch (Exception e) {
-                            Thread.currentThread().interrupt();
-                            System.err.println("LOFAR/comInterfaz - Error en el sleep del start en comInterfaz" + e.getMessage());
-                        }
+                            cspv.start();
+                            try {
+                                sleep(300);
+                            } catch (Exception e) {
+                                Thread.currentThread().interrupt();
+                                System.err.println("LOFAR/comInterfaz - Error en el sleep del start en comInterfaz" + e.getMessage());
+                            }
                         case "OFF":
                             window.setExtendedState(JFrame.ICONIFIED);
                             cspps.setHabilitado(false);
@@ -117,6 +122,7 @@ class comInterfaz extends Thread {
                             /*if ("SSPV".equals(modelo)) {
                                 a.save("resource/btrData.txt", cspv.getSave());
                             }*/
+                            desp.save();
                             break;
                         case "RP":
                             window.repaint();
@@ -127,13 +133,13 @@ class comInterfaz extends Thread {
                                 prop.load(input);
                                 mensaje = "LONG" + prop.getProperty("longLF") + ";";
                             } catch (IOException e) {
-                                System.err.println("LOFAR/comInterfaz - Error al leer el longLF del archivo config "+e.getMessage());
+                                System.err.println("LOFAR/comInterfaz - Error al leer el longLF del archivo config " + e.getMessage());
                             } finally {
                                 if (input != null) {
                                     try {
                                         input.close();
                                     } catch (IOException e) {
-                                        System.err.println("LOFAR/comInterfaz - Error al cerrar el input"+e.getMessage());
+                                        System.err.println("LOFAR/comInterfaz - Error al cerrar el input" + e.getMessage());
                                     }
                                 }
                             }
@@ -150,6 +156,8 @@ class comInterfaz extends Thread {
                                 Calendar cal = Calendar.getInstance();
                                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
                                 desp.setInfo(texto, sdf.format(cal.getTime()));
+                                cspps.setEstadoEnvio(false);
+                                socket.send(paqueteSend);
                             }
                             break;
                     }
@@ -161,164 +169,3 @@ class comInterfaz extends Thread {
         }
     }
 }
-
-/*
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Properties;
-import javax.swing.*;
-
-/**
- *
- * @author juan
- 
-class comInterfaz extends Thread {
-
-    DatagramSocket socket;
-    InetAddress address;
-    byte[] mensaje_bytes = new byte[256];
-    String mensaje = "";
-    DatagramPacket paquete;
-    int puerto = 0;
-    String cadenaMensaje = "";
-    DatagramPacket servPaquete;
-    byte[] RecogerServidor_bytes = new byte[256];
-    String texto = "";
-    Properties prop = new Properties();
-    InputStream input = null;
-    comSend cspps = new comSend();
-    comSPV cspv = new comSPV();
-    despliegue desp;
-    String modelo;
-
-    //@Override
-    public void run(JFrame window) {
-        try {
-            //cspv.setHabilitado(true);
-            //cspv.setWindow(window);
-            try {
-                input = new FileInputStream("config.properties");
-                prop.load(input);
-                modelo = prop.getProperty("modelo");
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } finally {
-                if (input != null) {
-                    try {
-                        input.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            //if ("SSPP".equals(mensaje)) {
-                puerto = 5001;
-                cspps.setPuerto(puerto);
-                cspps.start();
-            /*} else if ("SSF".equals(mensaje)) {
-                puerto = 5002;
-                cspps.setPuerto(puerto);
-                cspps.start();
-            } else if ("SSPV".equals(mensaje)) {
-                puerto = 5003;
-            }
-            address = InetAddress.getByName("localhost");
-            mensaje = "runLF";
-            mensaje_bytes = mensaje.getBytes();
-            paquete = new DatagramPacket(mensaje_bytes, mensaje.length(), address, puerto);
-            socket = new DatagramSocket();
-            socket.send(paquete);
-            System.out.println("enviamos " + mensaje + " para inicializar la comunicación con el software");
-            archivo a = new archivo();
-            String hora;
-
-            do {
-                RecogerServidor_bytes = new byte[256];
-                servPaquete = new DatagramPacket(RecogerServidor_bytes, 256);
-                socket.receive(servPaquete);
-                cadenaMensaje = new String(RecogerServidor_bytes).trim();   //Convertimos el mensaje recibido en un string
-                texto = "";
-                if ("OFF".equals(cadenaMensaje)) {
-                    window.setExtendedState(JFrame.ICONIFIED);
-                    if (cspps.getHabilitado()) {
-                        cspps.setHabilitado(false);
-                    }
-                    if (cspv.getHabilitado()) {
-                        cspv.setHabilitado(false);
-                    }
-                } else if ("ON".equals(cadenaMensaje)) {
-                    window.setExtendedState(JFrame.NORMAL);
-                    if (!cspps.getHabilitado()) {
-                        cspps.setHabilitado(true);
-                    }
-                    if (!cspv.getHabilitado()) {
-                        cspv.setHabilitado(true);
-                    }
-                } else if ("EXIT".equals(cadenaMensaje)) {
-                    System.exit(0);
-                } else if ("SAVE".equals(cadenaMensaje)) {
-                    //a.save("resource/lofarData.txt.txt");
-                } else if ("RP".equals(cadenaMensaje)) {                    //BTR repaint
-                    window.repaint();
-                } else if ("LONG".equals(cadenaMensaje)) {
-                    try {
-                        input = new FileInputStream("config.properties");
-                        prop.load(input);
-                        mensaje = "#" + prop.getProperty("longLF");
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    } finally {
-                        if (input != null) {
-                            try {
-                                input.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                    mensaje_bytes = mensaje.getBytes();
-                    paquete = new DatagramPacket(mensaje_bytes, mensaje.length(), address, 5002);
-                    socket.send(paquete);
-                    if (puerto == 5003){
-                        cspps.setPuerto(puerto);
-                        cspv.start();
-                    }
-                    } else if (!("START OK!".equals(cadenaMensaje))) {
-                    char[] charArray = cadenaMensaje.toCharArray();
-                    for (char temp : charArray) {
-                        texto += temp;
-                    }
-                    if ("SSF".equals(modelo)) {
-                    Calendar cal = Calendar.getInstance();
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                    hora = sdf.format(cal.getTime());
-                    //a.escribirTxtLine("resource/btrData.txt", texto);
-                    //window.repaint();
-                    desp.setInfo(texto, hora);
-                    }desp.fConf();
-                }
-                /*} else if (!("START OK!".equals(cadenaMensaje))) {
-                    char[] charArray = cadenaMensaje.toCharArray();
-                    for (char temp : charArray) {
-                        texto += temp;
-                    }
-                    Calendar cal = Calendar.getInstance();
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                    texto = sdf.format(cal.getTime()) + "," + texto;
-                    a.escribirTxtLine("resource/lofarDataRcv.txt", texto);
-
-                    window.repaint();
-                }
-            } while (true);
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
-        }
-    }
-}*/

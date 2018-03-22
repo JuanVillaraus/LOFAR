@@ -1,4 +1,4 @@
- /*
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -24,6 +24,7 @@ public class comSend extends Thread {
     DatagramPacket paquete;
     boolean habilitado = false;
     int t = 1000;
+    boolean estadoEnvio = true;
 
     public comSend() {
 
@@ -33,12 +34,20 @@ public class comSend extends Thread {
         return this.habilitado;
     }
 
+    public boolean getEstadoEnvio() {
+        return this.estadoEnvio;
+    }
+
     public void setHabilitado(boolean h) {
         this.habilitado = h;
     }
-    
-    public void setPuerto(int puerto){
+
+    public void setPuerto(int puerto) {
         this.puerto = puerto;
+    }
+
+    public void setEstadoEnvio(boolean estadoEnvio) {
+        this.estadoEnvio = estadoEnvio;
     }
 
     @Override
@@ -57,6 +66,7 @@ public class comSend extends Thread {
                 input = new FileInputStream("config.properties");
                 prop.load(input);
                 t = Integer.parseInt(prop.getProperty("timeSend"));
+                t *= 10;
             } catch (IOException e) {
                 System.err.println(e.getMessage());
             } finally {
@@ -72,11 +82,14 @@ public class comSend extends Thread {
                 if (getHabilitado()) {
                     n++;
                     System.out.println(n);
-                    socket.send(paquete);
+                    if (getEstadoEnvio()) {
+                        socket.send(paquete);
+                    }
+                    setEstadoEnvio(true);
                 }
                 try {
                     sleep(t);                                //espera un segundo
-                } catch (Exception e) {                     
+                } catch (Exception e) {
                     System.err.println(e.getMessage());
                 }
             }

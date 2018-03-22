@@ -50,7 +50,6 @@ public class comSPV extends Thread {
     }
 
     public void run() {
-        long time;
         try {
             try {
                 input = new FileInputStream("config.properties");
@@ -77,12 +76,10 @@ public class comSPV extends Thread {
             sleep(1000);
             String info;
             int limSound;
-            
+            audioTxt = "";
 
             while (true) {
-                time = System.currentTimeMillis();
                 limSound = 0;
-                audioTxt = "";
                 if (getHabilitado()) {
                     mensaje = "selAudio " + a.leerTxt("resource/marcBTR.txt");
                     out.writeUTF(mensaje);
@@ -98,6 +95,7 @@ public class comSPV extends Thread {
                     //System.out.println(msn);
                     for (int i = 1; i <= 26; i++) {
                         mensaje = "Audio " + i;
+                        //mensaje = "Audio 1";
                         out.writeUTF(mensaje);
                         msn = inp.readLine();
                         //System.out.println(msn);
@@ -113,7 +111,7 @@ public class comSPV extends Thread {
                                     } else {
                                         try {
                                             sound[limSound] = Integer.parseInt(info);
-                                            System.out.print(info + " ");
+                                            //System.out.print(info + " ");
 
                                         } catch (Exception e) {
                                             System.err.println("Error: ParseInt: " + e.getMessage());
@@ -125,14 +123,63 @@ public class comSPV extends Thread {
                             }
                         }
                     }
+
+                    /*mensaje = "DatosAUDIO\n";
+                    out.writeUTF(mensaje);
+                    System.out.println("Envie: " + mensaje);
+                    msn = inp.readLine();
+                    System.out.println("Recibí: " + msn);
+                    if (!("Audio OK".equals(msn))) {
+                        error = true;
+                        System.out.println("Error: esperba <Audio OK> y recibí <" + msn + ">, Compruebe la comunicación");
+                    } else {
+                        mensaje = "DatosLOFAR\n";
+                        out.writeUTF(mensaje);
+                        System.out.println("Envie: " + mensaje);
+                        msn = inp.readLine();
+                        System.out.println("Recibí: " + msn);
+                        if ("Beamforming OK".equals(msn)) {
+                            error = true;
+                            System.out.println("Error: esperba <Beamforming OK> y recibí <" + msn + ">, Compruebe la comunicación");
+                        } else {
+                            for (int n = 1; n <= 13; n++) {
+                                if (!error) {
+                                    mensaje = "LOFAR " + n + "\n";
+                                    out.writeUTF(mensaje);
+                                    System.out.println("Envie: " + mensaje);
+                                    msn = inp.readLine();
+                                    System.out.println("Recibí: " + msn);
+                                    char[] charArray = msn.toCharArray();
+                                    for (char temp : charArray) {
+                                        if (temp == '1' || temp == '2' || temp == '3' || temp == '4' || temp == '5' || temp == '6' || temp == '7' || temp == '8' || temp == '9' || temp == '0') {
+                                            word += temp;
+                                        }
+                                        if (temp == ',' || temp == ';') {
+                                            nDatos++;
+                                            if (word != null) {
+                                                texto += word;
+                                                if (n != 13 || temp == ',') {
+                                                    texto += ",";
+                                                }
+                                                word = "";
+                                            } else {
+                                                error = true;
+                                                System.out.println("Error: dato en la posicion " + nDatos + " del LOFAR" + n + " no fue encontrado");
+                                            }
+                                        }
+                                        if (temp == ';' && n == 13) {
+                                            texto += ";";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }*/
                     if (!error) {
                         Calendar cal = Calendar.getInstance();
                         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
                         desp.setInfo(sound, sdf.format(cal.getTime()));
-                        time = System.currentTimeMillis() - time;
-                        System.out.println("Averaged " + time + "ms per iteration");
                     }
-                   
                 } else {
                     try {
                         sleep(t);                                //espera un segundo

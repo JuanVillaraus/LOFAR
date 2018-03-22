@@ -31,21 +31,35 @@ public class FFT {
     int n, m;
     double[] cos;
     double[] sin;
+    double[] re;
+    double[] im;
+    double[] magnitudFFT;
+    int i, j, k, n1, n2, a;
+    double c, s, e, t1, t2;
+    int N = 1024;
 
     public FFT() {
 
-   }
-
-    public double[] FFT(double[] audio) {
-        int N = 1024;
         //FFT fft = new 
         FFT(N);
-        double[] re = new double[N];
-        double[] im = new double[N];
+        re = new double[N];
+        im = new double[N];
         //Vector con el audio por procesar
 
         //Vector con el resultado final
-        double[] magnitudFFT = new double[N];
+        magnitudFFT = new double[N];
+    }
+
+    public double[] FFT(double[] audio) {
+        //int N = 1024;
+        //FFT fft = new 
+        //FFT(N);
+        //re = new double[N];
+        //im = new double[N];
+        //Vector con el audio por procesar
+
+        //Vector con el resultado final
+        //magnitudFFT = new double[N];
         //En este for se introduce el audio
         for (int i = 0; i < N; i++) {
             re[i] = audio[i];
@@ -57,7 +71,7 @@ public class FFT {
             magnitudFFT[i] = (Math.sqrt(Math.pow(re[i] / N, 2) + Math.pow(im[i] / N, 2)));
         }
         magnitudFFT[0] = magnitudFFT[1];		//eliminar la componente de cd
-        printReIm(magnitudFFT);
+        //printReIm(magnitudFFT);
         magnitudFFT = LOG(magnitudFFT);
         return magnitudFFT;
     }
@@ -79,8 +93,8 @@ public class FFT {
     }
 
     public void FFT(double[] x, double[] y) {
-        int i, j, k, n1, n2, a;
-        double c, s, e, t1, t2;
+        //int i, j, k, n1, n2, a;
+        //double c, s, e, t1, t2;
         j = 0;
         n2 = n / 2;
         for (i = 1; i < n - 1; i++) {

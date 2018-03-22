@@ -8,6 +8,7 @@ package lofar;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 import javax.swing.*;
 
 /**
@@ -34,8 +35,14 @@ public class despliegue extends JComponent {
     private boolean bMarcacion;
     private int[] iActual;
     private int[][] waterfall;
+    private int[][] waterfallProm;
     private String[] time;
     FFT f = new FFT();
+    double[] audio;
+    double[] fft;
+    int[] fftInt;
+    int act = 0;
+    archivo a = new archivo();
 
     public despliegue(JFrame window) {
         window.add(this);
@@ -79,22 +86,32 @@ public class despliegue extends JComponent {
                 }
             }
         }
+        audio = new double[longLF * 2];
+        fft = new double[longLF * 2];
+        fftInt = new int[longLF];
+
         window.setSize(dimensionX, dimensionY);
         window.setLocation(posicionX, posicionY);
-        waterfall = new int[100][longLF];
-        for (int x = 0; x < 100; x++) {                                                 //inicializa el waterfall en cero
+        waterfall = new int[60][longLF];
+        for (int x = 0; x < waterfall.length; x++) {                                                 //inicializa el waterfall en cero
             for (int y = 0; y < longLF; y++) {
-                waterfall[x][y] = LimYdw;
+                waterfall[x][y] = 0;
+            }
+        }
+        waterfallProm = new int[30][longLF];
+        for (int x = 0; x < waterfallProm.length; x++) {                                                 //inicializa el waterfall en cero
+            for (int y = 0; y < longLF; y++) {
+                waterfallProm[x][y] = 0;
             }
         }
         setWaterfall(waterfall);
         iActual = new int[longLF];
         for (int i = 0; i < longLF; i++) {
-            iActual[i] = 0;
+            iActual[i] = LimYdw;
         }
         setIActual(iActual);
-        time = new String[100];
-        for (int i = 0; i < 100; i++) {
+        time = new String[60];
+        for (int i = 0; i < time.length; i++) {
             time[i] = "";
         }
         setTime(time);
@@ -144,6 +161,10 @@ public class despliegue extends JComponent {
     public void setWaterfall(int[][] waterfall) {
         this.waterfall = waterfall;
     }
+    
+    public void setWaterfallProm(int[][] waterfallProm) {
+        this.waterfallProm = waterfallProm;
+    }
 
     public void setIActual(int[] iActual) {
         this.iActual = iActual;
@@ -160,6 +181,10 @@ public class despliegue extends JComponent {
 
     public int[][] getWaterfall() {
         return this.waterfall;
+    }
+    
+    public int[][] getWaterfallProm() {
+        return this.waterfallProm;
     }
 
     public int[] getIActual() {
@@ -187,15 +212,17 @@ public class despliegue extends JComponent {
 
         int colorUp = Integer.parseInt(a.leerTxtLine("resource/colorUp.txt"));
         int colorDw = Integer.parseInt(a.leerTxtLine("resource/colorDw.txt"));
+        //colorDw = ((colorDw-LimYdw)*255)/(LimYup-LimYdw);
         //int marcacion = Integer.parseInt(a.leerTxtLine("resource/marcacion.txt"));
 
         g.setColor(Color.WHITE);
-        g.drawLine(inicioCascadaX - 5, 1, inicioCascadaX - 5, inicioCascadaY - 30);
+        /*g.drawLine(inicioCascadaX - 5, 1, inicioCascadaX - 5, inicioCascadaY - 30);
         g.drawLine(inicioCascadaX - 5, inicioCascadaY - 30, getSize().width, inicioCascadaY - 30);
-        g.drawLine(inicioCascadaX - 5, inicioCascadaY, inicioCascadaX - 5, getSize().height - 20);
+        g.drawLine(inicioCascadaX - 5, inicioCascadaY, inicioCascadaX - 5, getSize().height - 20);*/
 
         g.drawLine(inicioCascadaX - 5, 1, inicioCascadaX - 5, inicioCascadaY - 30);
         g.drawLine(inicioCascadaX - 5, inicioCascadaY - 30, getSize().width, inicioCascadaY - 30);
+        g.drawLine(inicioCascadaX - 5, inicioCascadaY +(limY*64), getSize().width, inicioCascadaY +(limY*64));
         g.drawLine(inicioCascadaX - 5, inicioCascadaY, inicioCascadaX - 5, getSize().height - 20);
         g.drawLine(inicioCascadaX - 10, 5, inicioCascadaX - 5, 5);
         g.drawLine(inicioCascadaX - 10, (((inicioCascadaY - 35) + 5) / 2), inicioCascadaX - 5, (((inicioCascadaY - 35) + 5) / 2));
@@ -228,11 +255,11 @@ public class despliegue extends JComponent {
                     break;
                 case "SSF":
                     for (int i = 0; i < 9; i++) {
-                        g.drawLine(inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 30, inicioCascadaX + (((limX * longLF) / 6) * i), inicioCascadaY - 25);
+                        g.drawLine(inicioCascadaX + ((((limX * longLF * 200) / 208) / 8) * i), inicioCascadaY - 30, inicioCascadaX + ((((limX * longLF * 200) / 208) / 8) * i), inicioCascadaY - 25);
                         if (i != 8) {
-                            g.drawString((i * 2.5) + "KHz", inicioCascadaX + (((limX * longLF) / 6) * i) - 15, inicioCascadaY - 10);
+                            g.drawString((i * 2.5) + "KHz", inicioCascadaX + ((((limX * longLF * 200) / 208) / 8) * i) - 15, inicioCascadaY - 10);
                         } else {
-                            g.drawString((i * 2.5) + "KHz", inicioCascadaX + (((limX * longLF) / 6) * i) - 23, inicioCascadaY - 10);
+                            g.drawString((i * 2.5) + "KHz", inicioCascadaX + ((((limX * longLF * 200) / 208) / 8) * i) - 23, inicioCascadaY - 10);
                         }
                     }
                     break;
@@ -256,8 +283,9 @@ public class despliegue extends JComponent {
         if (null != modelo) {
             switch (modelo) {
                 case "SSF":
+                    //System.out.println("");
                     for (int i = 0; i < longLF - 1; i++) {
-                        //System.out.print(iActual[i] + " ");
+                        //System.out.print(" " + iActual[i]);
                         g.drawLine(xi, -1 * (((iActual[i]) - LimYup) * 90 / (LimYup - LimYdw)), xi + limX, -1 * (((iActual[i + 1]) - LimYup) * 90 / (LimYup - LimYdw)));
                         xi += limX;
                     }
@@ -290,38 +318,61 @@ public class despliegue extends JComponent {
             }
         }
 
+        //System.out.println();
         for (int x = 0; x < waterfall.length; x++) {
             xi = inicioCascadaX;
             for (int y = 0; y < waterfall[x].length; y++) {
-
-                if (waterfall[x][y] > LimYup && waterfall[x][y] < LimYdw) {
-                    System.out.println("LOFAR/despliegue - Error #??: el valor a desplegar esta fuera de rango, se ajustará");
-                    if (waterfall[x][y] > LimYup) {
-                        waterfall[x][y] = LimYup;
-                    } else if (waterfall[x][y] < LimYdw) {
-                        waterfall[x][y] = LimYdw;
+                if (waterfall[x][y] >= 0 && waterfall[x][y] <= 255) {
+                    if (x == 0 && y < 50) {
+                        //System.out.print(" " + waterfall[x][y]);
                     }
-                }
-                if ((-1 * (waterfall[x][y] - LimYup) * 255 / (LimYup - LimYdw)) < colorDw) {
-                    g.setColor(Color.BLACK);
-                } else if ((-1 * (waterfall[x][y] - LimYup) * 255 / (LimYup - LimYdw)) > colorUp) {
-                    g.setColor(Color.GREEN);
+                    if (waterfall[x][y] < colorDw) {
+                        g.setColor(Color.BLACK);
+                    } else if (waterfall[x][y] > colorUp) {
+                        g.setColor(Color.GREEN);
+                    } else {
+                        g.setColor(new Color(0, (waterfall[x][y] - colorDw) * 255 / (colorUp - colorDw), 0));
+                        //g.setColor(new Color(0, waterfall[x][y], 0));
+                    }
+                    g.fillRect(xi, yi, limX, limY);
+                    if ((x % 10) == 0) {
+                        g.setColor(Color.WHITE);
+                        g.drawLine(inicioCascadaX - 10, yi, inicioCascadaX - 05, yi);
+                        g.drawString(time[x], 5, yi + 3);
+                    }
+                    xi += limX;
                 } else {
-
-                    //g.setColor(new Color(0, (waterfall[x][y] - colorDw) * 255 / (colorUp - colorDw), 0));
-                    g.setColor(new Color(0, 255 - (((-1 * ((waterfall[x][y] - LimYup) * 255 / (LimYup - LimYdw))) - colorDw) * 255 / (colorUp - colorDw)), 0));
+                    System.out.println("Error #??: el valor a desplegar esta fuera de rango");
                 }
-
-                g.fillRect(xi, yi, limX, limY);
-                if ((x % 10) == 0) {
-                    g.setColor(Color.WHITE);
-                    g.drawLine(inicioCascadaX - 10, yi, inicioCascadaX - 05, yi);
-                    g.drawString(time[x], 5, yi + 3);
-                }
-                xi += limX;
             }
             yi += limY;
         }
+        
+        yi+=(limY*5);
+        for (int x = 0; x < waterfallProm.length; x++) {
+            xi = inicioCascadaX;
+            for (int y = 0; y < waterfallProm[0].length; y++) {
+                if (waterfallProm[x][y] >= 0 && waterfallProm[x][y] <= 255) {
+                    if (x == 0 && y < 50) {
+                        //System.out.print(" " + waterfall[x][y]);
+                    }
+                    if (waterfallProm[x][y] < colorDw) {
+                        g.setColor(Color.BLACK);
+                    } else if (waterfallProm[x][y] > colorUp) {
+                        g.setColor(Color.GREEN);
+                    } else {
+                        g.setColor(new Color(0, (waterfallProm[x][y] - colorDw) * 255 / (colorUp - colorDw), 0));
+                        //g.setColor(new Color(0, waterfall[x][y], 0));
+                    }
+                    g.fillRect(xi, yi, limX, limY);
+                    xi += limX;
+                } else {
+                    System.out.println("Error #??: el valor a desplegar esta fuera de rango");
+                }
+            }
+            yi += limY;
+        }
+        //System.out.println();
         /*if (getBMarcacion()) {
             fX = (((getSize().width - 5 - inicioCascadaX) / 36) * (marcacion / 10)) + inicioCascadaX;
             System.out.println(fX);
@@ -340,6 +391,10 @@ public class despliegue extends JComponent {
     public void setInfo(String infoActual, String hora) {
         info = "";
         int[] infoActualNum = new int[iActual.length];
+        int[][] Waterfall = getWaterfall();
+        int[][] WaterfallProm = getWaterfallProm();
+        int[] preWaterfall = new int[iActual.length];
+        int[] preWaterfall2 = new int[iActual.length];
         for (int x = 0; x < infoActualNum.length; x++) {
             infoActualNum[x] = 0;
         }
@@ -350,29 +405,52 @@ public class despliegue extends JComponent {
                 info += temp;
             } else {
                 try {
-                    infoActualNum[n] = Integer.parseInt(info);
+                    boolean isNumber = Pattern.matches("[0-9]+", info);
+                    if (isNumber) {
+                        infoActualNum[n] = Integer.parseInt(info);
+                    } else {
+                        infoActualNum[n] = 0;
+                    }
                 } catch (Exception e) {
-                    System.err.println("LOFAR/despliegue - Error al convertir la información recivida en numero " + e.getMessage());
+                    System.err.println("LOFAR/despliegue - Error al convertir la información recivida en numero " + n + "\tError:" + e.getMessage());
                 }
                 if (infoActualNum[n] < LimYdw) {
+                    //System.out.print("menor: " + infoActualNum[n] + " ");
                     infoActualNum[n] = LimYdw;
+                    //System.out.println(infoActualNum[n]);
                 }
                 if (infoActualNum[n] > LimYup) {
                     infoActualNum[n] = LimYup;
                 }
                 info = "";
-                n++;
+                if (n < (longLF - 1)) {
+                    n++;
+                }
             }
         }
         setIActual(infoActualNum);
         tiempoLocal++;
-        //if (tiempoOper < tiempoLocal) {
-        waterfall = getWaterfall();
         for (int x = waterfall.length - 1; x > 0; x--) {
             waterfall[x] = waterfall[x - 1];
         }
-        waterfall[0] = infoActualNum;
+
+        for (int i = 0; i < infoActualNum.length; i++) {
+            preWaterfall[i] = (infoActualNum[i] - LimYdw) * 255 / (LimYup - LimYdw);
+        }
+        waterfall[0] = preWaterfall;
         setWaterfall(waterfall);
+        for (int x = waterfallProm.length - 1; x > 0; x--) {
+            waterfallProm[x] = waterfallProm[x - 1];
+        }
+        for (int y = 0; y < waterfallProm[0].length; y++) {
+            preWaterfall2[y] = 0;
+            for (int x = 0; x < waterfallProm.length; x++) {
+                preWaterfall2[y] += waterfall[x][y];
+            }
+            preWaterfall2[y] = preWaterfall2[y]/waterfallProm.length;
+        }
+        waterfallProm[0] = preWaterfall2;
+        setWaterfallProm(waterfallProm);
         time = getTime();
         for (int x = time.length - 1; x > 0; x--) {
             time[x] = time[x - 1];
@@ -380,31 +458,28 @@ public class despliegue extends JComponent {
         time[0] = hora;
         setTime(time);
         tiempoLocal = 0;
-        //}
         repaint();
     }
 
     public void setInfo(int[] infoActual, String hora) {
-        
-        double[] audio = new double[longLF*2];
+        act++;
+        //double[] audio = new double[longLF*2];
         for (int x = 0; x < audio.length; x++) {
             audio[x] = infoActual[x];
         }
-        
-        
-        
-        double[] fft = new double[longLF*2];
-        int[] fftInt = new int[longLF];
+
+        //double[] fft = new double[longLF*2];
+        //int[] fftInt = new int[longLF];
         fft = f.FFT(audio);
         for (int i = 0; i < fftInt.length; i++) {
-            fftInt[i]=(int)fft[i];
+            fftInt[i] = (int) fft[i];
         }
-        
+
         int[] infoActualNum = new int[longLF];
         for (int x = 0; x < infoActualNum.length; x++) {
             infoActualNum[x] = fftInt[x];
         }
-        
+
         for (int x = 0; x < infoActualNum.length; x++) {
             if (infoActualNum[x] < LimYdw) {
                 infoActualNum[x] = LimYdw;
@@ -414,21 +489,44 @@ public class despliegue extends JComponent {
             }
         }
         setIActual(infoActualNum);
-        waterfall = getWaterfall();
-        for (int x = waterfall.length - 1; x > 0; x--) {
-            waterfall[x] = waterfall[x - 1];
+        if (act == 25) {
+            waterfall = getWaterfall();
+            for (int x = waterfall.length - 1; x > 0; x--) {
+                waterfall[x] = waterfall[x - 1];
+            }
+            waterfall[0] = infoActualNum;
+            setWaterfall(waterfall);
+            time = getTime();
+            for (int x = time.length - 1; x > 0; x--) {
+                time[x] = time[x - 1];
+            }
+            time[0] = hora;
+            setTime(time);
+            act = 0;
         }
-        waterfall[0] = infoActualNum;
-        setWaterfall(waterfall);
-        time = getTime();
-        for (int x = time.length - 1; x > 0; x--) {
-            time[x] = time[x - 1];
-        }
-        time[0] = hora;
-        setTime(time);
-        tiempoLocal = 0;
+        //tiempoLocal = 0;
         //}
         repaint();
         System.out.println();
+    }
+
+    public void save() {
+        String s = "";
+        for (int x = 0; x < waterfall.length; x++) {
+            for (int y = 0; y < waterfall[0].length; y++) {
+                if (y == 0) {
+                    s += time[y] + ",";
+                }
+                s += waterfall[x][y];
+                if (y < waterfall[0].length - 1) {
+                    s += ",";
+                }
+            }
+            s += ";";
+            if (x < waterfall.length - 1) {
+                s += "\n";
+            }
+        }
+        a.save("resource/LOFAR", s);
     }
 }

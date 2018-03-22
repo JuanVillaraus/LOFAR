@@ -1,6 +1,8 @@
 #Tue Apr 12 08:46:23 CDT 2016
-modelo=SSPV
+modelo=SSF
 database=localhost
+locationX=600
+locationY=350
 posicionX=38
 posicionY=350
 dimensionX=760
@@ -9,9 +11,9 @@ longBTR=80
 longLF=512
 longPPI=80
 longDEMON=512
-timeSend=5000
-LFlimYup=0
-LFlimYdw=-100
+timeSend=60000
+LFlimYup=170
+LFlimYdw=40
 dirSSPV=192.168.1.10
 portBTR=10000
 portLF=30000
