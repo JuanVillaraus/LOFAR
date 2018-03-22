@@ -2,10 +2,14 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+<<<<<<< HEAD
         <group>
             <file>file:/home/siviso/repositorio/lofar/src/lofar/comSend.java</file>
             <file>file:/home/siviso/repositorio/lofar/src/lofar/comInterfaz.java</file>
             <file>file:/home/siviso/repositorio/lofar/src/lofar/despliegue.java</file>
         </group>
+=======
+        <group/>
+>>>>>>> d015d6093c513fa9d4fd6de1ca701f466f1d928f
     </open-files>
 </project-private>
